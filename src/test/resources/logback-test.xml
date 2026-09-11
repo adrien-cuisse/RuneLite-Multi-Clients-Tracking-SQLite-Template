@@ -52,5 +52,16 @@
 		<appender-ref ref="STDOUT"/>
 		<appender-ref ref="FILE"/>
 	</root>
-	<logger name="com.example" level="DEBUG" />
+
+	<!-- We store our logs in our own file -->
+	<appender name="multi-tracking-template" class="ch.qos.logback.core.FileAppender">
+		<file>${user.home}/.runelite/logs/multi-tracking-template.log</file>
+		<encoder>
+			<pattern>%d{HH:mm:ss} [%thread] %-5level %logger - %msg%n</pattern>
+		</encoder>
+	</appender>
+	<logger name="com.example" level="DEBUG">
+		<appender-ref ref="multi-tracking-template"/>
+	</logger>
+
 </configuration>
