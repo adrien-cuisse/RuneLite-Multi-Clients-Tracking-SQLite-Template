@@ -1,11 +1,7 @@
 package com.w385.template.database;
 
-import org.junit.ClassRule;
 import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
-import java.nio.file.Path;
 import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -13,22 +9,12 @@ import java.time.Instant;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Random;
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
 
-public final class GenericRepositoryMappingTests
+public final class GenericRepositoryMappingTests extends DatabaseTestSuite
 {
-	@ClassRule
-	public static TemporaryFolder WORKING_DIRECTORY = new TemporaryFolder();
-
-	private final Path path = WORKING_DIRECTORY.getRoot()
-		.toPath()
-		.resolve(randomString() + ".sqlite3");
-
-	private final SQLiteDatabase database = new SQLiteDatabase(this.path);
-
 	private final GenericRepository repository = new GenericRepository(this.database, TABLE_NAME);
 
 	private static final String TABLE_NAME = "mappings-test";
@@ -307,30 +293,6 @@ public final class GenericRepositoryMappingTests
 		// clean-up
 		insertStatement.close();
 		rawConnection.close();
-	}
-
-	/**
-	 * Creates a raw connection from the JDBC SQLite driver.
-	 * Caller is in charge of closing the connection when he's done with it.
-	 *
-	 * @return the opened connection
-	 */
-	private Connection rawConnection() throws SQLException
-	{
-		return DriverManager.getConnection("JDBC:sqlite:" + this.path);
-	}
-
-	/**
-	 * Generates a random string
-	 *
-	 * @return the random string
-	 */
-	private static String randomString()
-	{
-		return new Random().ints(97, 123)
-			.limit(16)
-			.collect(StringBuilder::new, StringBuilder::appendCodePoint, StringBuilder::append)
-			.toString();
 	}
 
 	/**
