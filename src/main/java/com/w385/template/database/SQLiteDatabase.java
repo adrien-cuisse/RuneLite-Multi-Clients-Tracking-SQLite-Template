@@ -101,15 +101,14 @@ public final class SQLiteDatabase implements AutoCloseable
     }
 
     /**
-     * Executes an SELECT statement.
+     * Executes a SELECT statement without placeholders, fetching the whole table.
      * This function must <i style="color:#F80">NOT</i> be called in the same thread
      * as the Plugin class to comply with RuneLite restrictions.
      * If no connection is currently open, a new one is created.
      * If this is the first connection to the database and the file doesn't
      * exist, it is created as blank.
      *
-     * @param query the query containing the SELECT statement to execute,
-     *  which may contain placeholders
+     * @param query the query containing the SELECT statement to execute
      * @param reader the function to read from the ResultSet
      *
      * @throws SQLException if a database access error occurs or if query was
@@ -126,6 +125,36 @@ public final class SQLiteDatabase implements AutoCloseable
             rows.close();
         }
     }
+
+	/**
+	 * Executes a SELECT statement with placeholders, fetching only matching rows.
+	 * This function must <i style="color:#F80">NOT</i> be called in the same thread
+	 * as the Plugin class to comply with RuneLite restrictions.
+	 * If no connection is currently open, a new one is created.
+	 * If this is the first connection to the database and the file doesn't
+	 * exist, it is created as blank.
+	 *
+	 * @param query the query containing the SELECT statement to execute
+	 * @param binder the function to bind parameters to the statement
+	 * @param reader the function to read from the ResultSet
+	 *
+	 * @throws SQLException if a database access error occurs or if query was
+	 *  a write-operation, if the provided binder misuses the statement, or if
+	 *  the provided reader misused the results
+	 *
+	 * @see PreparedStatement
+	 * @see ResultSet
+	 */
+	public void fetch(String query, PreparedStatementBinder binder, ResultSetReader reader) throws SQLException
+	{
+		try (PreparedStatement statement = this.connection().prepareStatement(query))
+		{
+			binder.bind(statement);
+			ResultSet rows = statement.executeQuery();
+			reader.supply(rows);
+			rows.close();
+		}
+	}
 
     /**
      * Executes an UPDATE statement.
