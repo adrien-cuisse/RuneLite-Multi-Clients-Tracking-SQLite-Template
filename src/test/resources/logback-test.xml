@@ -62,6 +62,7 @@
 	</appender>
 	<logger name="com.example" level="DEBUG">
 		<appender-ref ref="multi-tracking-template"/>
+	<logger name="com.w385" level="DEBUG">
 	</logger>
 
 </configuration>
