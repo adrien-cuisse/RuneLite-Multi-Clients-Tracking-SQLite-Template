@@ -8,7 +8,7 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.Random;
 
-abstract class DatabaseTestSuite
+public abstract class DatabaseTestSuite
 {
 	/**
 	 * The path to the directory the current test will take place in
