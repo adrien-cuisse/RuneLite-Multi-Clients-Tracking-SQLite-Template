@@ -170,7 +170,11 @@ public final class GenericRepository implements AutoCloseable
 		else if (value instanceof Double)
 			statement.setDouble(index, (double) value);
 		else if (value instanceof Instant)
-			statement.setLong(index, ((Instant) value).getEpochSecond());
+		{
+			Instant instant = (Instant) value;
+			long timestamp = instant.getEpochSecond() * 1000000000L + instant.getNano();
+			statement.setLong(index, timestamp);
+		}
 		else if (value instanceof Boolean)
 			statement.setBoolean(index, (boolean) value);
 		else if (value instanceof Long)

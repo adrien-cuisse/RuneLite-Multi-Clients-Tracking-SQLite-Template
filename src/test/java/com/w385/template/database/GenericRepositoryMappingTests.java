@@ -158,30 +158,6 @@ public final class GenericRepositoryMappingTests extends DatabaseTestSuite
 	}
 
 	@Test
-	public void supportsInstantInsertMappingWithSecondsAccuracy() throws SQLException
-	{
-		// given:
-		createTableWithContentColumnOfType("LONG");
-
-		// when:
-		Instant now = Instant.now();
-		Map<String, Object> map = Map.of("content", now);
-		this.repository.insert(map);
-
-		// then:
-		Connection rawConnection = rawConnection();
-		Statement fetchStatement = rawConnection.createStatement();
-		ResultSet rows = fetchStatement.executeQuery("SELECT * FROM \"" + TABLE_NAME + "\"");
-		assertThat(rows.next(), is(true));
-		assertThat(rows.getLong("content"), is(now.getEpochSecond()));
-
-		// clean-up
-		rows.close();
-		fetchStatement.close();
-		rawConnection.close();
-	}
-
-	@Test
 	public void supportsFloatInsertMapping() throws SQLException
 	{
 		// given:
@@ -292,6 +268,34 @@ public final class GenericRepositoryMappingTests extends DatabaseTestSuite
 
 		// clean-up
 		insertStatement.close();
+		rawConnection.close();
+	}
+
+	@Test
+	public void supportsInstantInsertMappingWithNanoPrecision() throws SQLException
+	{
+		// given:
+		createTableWithContentColumnOfType("INTEGER");
+		Map<String, Object> map = new HashMap<>();
+
+		// when:
+		Instant now = Instant.now();
+		map.put("content", now);
+		this.repository.insert(map);
+
+		// then:
+		Connection rawConnection = rawConnection();
+		Statement fetchStatement = rawConnection.createStatement();
+		ResultSet rows = fetchStatement.executeQuery("SELECT * FROM \"" + TABLE_NAME + "\"");
+		assertThat(rows.next(), is(true));
+		long timestamp = rows.getLong("content");
+		long epochMillis = timestamp / 1000000;
+		long nanos = timestamp % 1000000;
+		assertThat(now, is(Instant.ofEpochMilli(epochMillis).plusNanos(nanos)));
+
+		// clean-up
+		rows.close();
+		fetchStatement.close();
 		rawConnection.close();
 	}
 
