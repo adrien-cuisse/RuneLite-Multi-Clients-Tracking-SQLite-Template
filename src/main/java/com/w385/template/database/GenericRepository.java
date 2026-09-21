@@ -263,6 +263,7 @@ public final class GenericRepository implements AutoCloseable
 	private String createInsertionQuery(Map<String, Object> map)
 	{
 		String columns = map.keySet().stream()
+			.map(column -> "\"" + column + "\"")
 			.collect(joining(", ", " (", ") "));
 
 		String placeholders = map.values().stream()
@@ -313,6 +314,7 @@ public final class GenericRepository implements AutoCloseable
 		String query = "UPDATE \"" + this.table + "\" SET ";
 
 		String assignments = columns.keySet().stream()
+			.map(column -> "\"" + column + "\"")
 			.map(column -> column + " = ?")
 			.collect(joining(", "));
 
