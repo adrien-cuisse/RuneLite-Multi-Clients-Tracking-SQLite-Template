@@ -10,6 +10,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collector;
 import static java.util.Arrays.stream;
 import static java.util.stream.Collectors.joining;
 import static java.util.stream.Collectors.toList;
@@ -31,10 +32,20 @@ public final class GenericRepository implements AutoCloseable
 	 */
 	private final String table;
 
+	private static final String QUOTE_SYMBOL = "\"";
+
+	private static final String PLACEHOLDER_MARKER = "?";
+
+	private static final String SEPARATOR_SYMBOL = ", ";
+
+	private static final String LIST_START_SYMBOL = " (";
+
+	private static final String LIST_END_SYMBOL = ") ";
+
 	public GenericRepository(SQLiteDatabase database, String table)
 	{
 		this.database = database;
-		this.table = table;
+		this.table = this.quote(table);
 	}
 
 	/**
@@ -263,14 +274,14 @@ public final class GenericRepository implements AutoCloseable
 	private String createInsertionQuery(Map<String, Object> map)
 	{
 		String columns = map.keySet().stream()
-			.map(column -> "\"" + column + "\"")
-			.collect(joining(", ", " (", ") "));
+			.map(this::quote)
+			.collect(this.toCommaSeparatedList());
 
 		String placeholders = map.values().stream()
-			.map(unused -> "?")
-			.collect(joining(", ", " (", ")"));
+			.map(this::placehold)
+			.collect(this.toCommaSeparatedList());
 
-		return "INSERT INTO \"" + this.table + "\""
+		return "INSERT INTO " + this.table
 			+ columns
 			+ "VALUES"
 			+ placeholders;
@@ -287,7 +298,7 @@ public final class GenericRepository implements AutoCloseable
 	 */
 	private String createFetchQuery(WhereCondition[] where)
 	{
-		String query = "SELECT * FROM \"" + this.table + "\"";
+		String query = "SELECT * FROM " + this.table;
 
 		if (where.length == 0)
 			return query;
@@ -311,12 +322,12 @@ public final class GenericRepository implements AutoCloseable
 	 */
 	private String createUpdateQuery(Map<String, Object> columns, WhereCondition ...where)
 	{
-		String query = "UPDATE \"" + this.table + "\" SET ";
+		String query = "UPDATE " + this.table + " SET ";
 
 		String assignments = columns.keySet().stream()
-			.map(column -> "\"" + column + "\"")
-			.map(column -> column + " = ?")
-			.collect(joining(", "));
+			.map(this::quote)
+			.map(this::placeholdAssignment)
+			.collect(joining(SEPARATOR_SYMBOL));
 
 		if (where.length == 0)
 			return query + assignments;
@@ -338,7 +349,7 @@ public final class GenericRepository implements AutoCloseable
 	 */
 	private String createDeleteQuery(WhereCondition ...where)
 	{
-		String query = "DELETE FROM \"" + this.table + "\"";
+		String query = "DELETE FROM " + this.table;
 
 		if (where.length == 0)
 			return query;
@@ -348,5 +359,25 @@ public final class GenericRepository implements AutoCloseable
 			.collect(joining(" AND "));
 
 		return query + " WHERE " + whereClause;
+	}
+
+	private String quote(String identifier)
+	{
+		return QUOTE_SYMBOL + identifier + QUOTE_SYMBOL;
+	}
+
+	private String placehold(Object unused)
+	{
+		return PLACEHOLDER_MARKER;
+	}
+
+	private String placeholdAssignment(String column)
+	{
+		return column + " = " + PLACEHOLDER_MARKER;
+	}
+
+	private Collector<CharSequence, ?, String> toCommaSeparatedList()
+	{
+		return joining(SEPARATOR_SYMBOL, LIST_START_SYMBOL, LIST_END_SYMBOL);
 	}
 }
