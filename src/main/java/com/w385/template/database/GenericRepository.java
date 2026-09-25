@@ -64,7 +64,7 @@ public final class GenericRepository implements AutoCloseable
 	{
 		String query = createInsertionQuery(map);
 		List<Object> values = new ArrayList<>(map.values());
-		this.database.insert(query, this.bindParameters(values));
+		this.database.write(query, this.bindParameters(values));
 	}
 
 	/**
@@ -118,7 +118,7 @@ public final class GenericRepository implements AutoCloseable
 			.map(condition -> condition.value)
 			.forEach(values::add);
 
-		this.database.update(query, this.bindParameters(values));
+		this.database.write(query, this.bindParameters(values));
 	}
 
 	/**
@@ -139,7 +139,7 @@ public final class GenericRepository implements AutoCloseable
 			.map(condition -> condition.value)
 			.collect(toList());
 
-		this.database.delete(query, this.bindParameters(values));
+		this.database.write(query, this.bindParameters(values));
 	}
 
 	@Override

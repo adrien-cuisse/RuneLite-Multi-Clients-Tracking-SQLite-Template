@@ -49,10 +49,8 @@ public final class SQLiteDatabase implements AutoCloseable
 	 * as the Plugin class to comply with RuneLite restrictions.
 	 * To execute a query from inputs (e.g., some file content), use the following:
 	 *  <ul>
-	 *	  <li>{@link SQLiteDatabase#insert(String query, PreparedStatementBinder binder) insert}</li>
+	 *	  <li>{@link SQLiteDatabase#write(String query, PreparedStatementBinder binder) insert}</li>
 	 *	  <li>{@link SQLiteDatabase#fetch(String query, ResultSetReader reader) fetch}</li>
-	 *	  <li>{@link SQLiteDatabase#update(String query, PreparedStatementBinder binder) update}</li>
-	 *	  <li>{@link SQLiteDatabase#delete(String query, PreparedStatementBinder binder) delete}</li>
 	 *  </ul>
 	 * If no connection is currently open, a new one is created.
 	 * If this is the first connection to the database and the file doesn't
@@ -93,7 +91,10 @@ public final class SQLiteDatabase implements AutoCloseable
 	}
 
 	/**
-	 * Executes an INSERT statement.
+	 * Executes a statement that does NOT return a result set, such as:
+	 * 	- INSERT without RETURNING clause,
+	 * 	- UPDATE,
+	 * 	- DELETE, etc.
 	 * This function must <i style="color:#F80">NOT</i> be called in the same thread
 	 * as the Plugin class to comply with RuneLite restrictions.
 	 * If no connection is currently open, a new one is created.
@@ -102,16 +103,17 @@ public final class SQLiteDatabase implements AutoCloseable
 	 * If this write-operation succeeds, the SQLite header is added to the file
 	 * if it's still blank.
 	 *
-	 * @param query the query containing the INSERT statement to execute,
+	 * @param query the query containing the statement to execute,
 	 *  which should contain placeholders
 	 * @param binder the function to bind actual values to the placeholders
 	 *
 	 * @throws UncheckedSQLException if a database access error occurs, if query was
-	 *  a read-operation or was invalid, if the provided binder misused the statement
+	 *  a read-operation or returned results or was invalid, if the provided binder
+	 *  misused the statement
 	 *
 	 * @see PreparedStatement
 	 */
-	void insert(String query, PreparedStatementBinder binder)
+	void write(String query, PreparedStatementBinder binder)
 	{
 		this.unchecked(() ->
 		{
@@ -181,68 +183,6 @@ public final class SQLiteDatabase implements AutoCloseable
 				ResultSet rows = statement.executeQuery();
 				reader.supply(rows);
 				rows.close();
-			}
-		});
-	}
-
-	/**
-	 * Executes an UPDATE statement.
-	 * This function must <i style="color:#F80">NOT</i> be called in the same thread
-	 * as the Plugin class to comply with RuneLite restrictions.
-	 * If no connection is currently open, a new one is created.
-	 * If this is the first connection to the database and the file doesn't
-	 * exist, it is created as blank.
-	 * If this write-operation succeeds, the SQLite header is added to the file
-	 * if it's still blank.
-	 *
-	 * @param query the query containing the UPDATE statement to execute,
-	 *  which must contain placeholders
-	 * @param binder the function to bind actual values to the placeholders
-	 *
-	 * @throws UncheckedSQLException if a database access error occurs, if query was
-	 *  a read-operation or was invalid, or if the provided binder misused the statement
-	 *
-	 * @see PreparedStatement
-	 */
-	void update(String query, PreparedStatementBinder binder)
-	{
-		this.unchecked(() ->
-		{
-			try (PreparedStatement statement = this.connection().prepareStatement(query))
-			{
-				binder.bind(statement);
-				statement.executeUpdate();
-			}
-		});
-	}
-
-	/**
-	 * Executes a DELETE statement.
-	 * This function must <i style="color:#F80">NOT</i> be called in the same thread
-	 * as the Plugin class to comply with RuneLite restrictions.
-	 * If no connection is currently open, a new one is created.
-	 * If this is the first connection to the database and the file doesn't
-	 * exist, it is created as blank.
-	 * If this write-operation succeeds, the SQLite header is added to the file
-	 * if it's still blank.
-	 *
-	 * @param query the query containing the DELETE statement to execute,
-	 *  which may contain placeholders
-	 * @param binder the function to bind actual values to the placeholders
-	 *
-	 * @throws UncheckedSQLException if a database access error occurs, if query was
-	 *  a read-operation or was invalid, or if the provided binder misused the statement
-	 *
-	 * @see PreparedStatement
-	 */
-	void delete(String query, PreparedStatementBinder binder)
-	{
-		this.unchecked(() ->
-		{
-			try (PreparedStatement statement = this.connection().prepareStatement(query))
-			{
-				binder.bind(statement);
-				statement.executeUpdate();
 			}
 		});
 	}

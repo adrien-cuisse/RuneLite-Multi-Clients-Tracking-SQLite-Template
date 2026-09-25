@@ -57,7 +57,7 @@ public final class SQLiteDatabaseTests
 		creationStatement.execute(tableCreationQueryString("insertion"));
 
 		// when: inserting a new row with a single value into that empty table
-		this.database.insert(
+		this.database.write(
 			"INSERT INTO \"insertion\" (content) VALUES (?);",
 			statement -> statement.setString(1, "the inserted content"));
 
@@ -117,7 +117,7 @@ public final class SQLiteDatabaseTests
 		insertionStatement.execute("INSERT INTO \"update\" (content, author) VALUES ('old code', 'refactoring')");
 
 		// when: deleting every row in that specific table
-		this.database.update(
+		this.database.write(
 			"UPDATE \"update\" SET content = ? WHERE author = ?",
 			s ->
 			{
@@ -151,7 +151,7 @@ public final class SQLiteDatabaseTests
 		insertionStatement.execute("INSERT INTO \"deletion\" (content) VALUES ('obsolete')");
 
 		// when: deleting that row in that specific table
-		this.database.delete(
+		this.database.write(
 			"DELETE FROM \"deletion\" WHERE content = ?",
 			statement -> statement.setString(1, "obsolete"));
 
