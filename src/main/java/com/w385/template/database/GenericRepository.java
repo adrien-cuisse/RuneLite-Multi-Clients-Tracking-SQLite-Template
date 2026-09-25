@@ -87,9 +87,9 @@ public final class GenericRepository implements AutoCloseable
 		List<Map<String, String>> results = new ArrayList<>();
 
 		if (where.length == 0)
-			this.database.fetch(query, this.readResults(results));
+			this.database.read(query, this.readResults(results));
 		else
-			this.database.fetch(query, this.bindParameters(where), this.readResults(results));
+			this.database.read(query, this.bindParameters(where), this.readResults(results));
 
 		return results;
 	}

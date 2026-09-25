@@ -86,7 +86,7 @@ public final class SQLiteDatabaseTests
 
 		// when: fetching all the rows from that specific table
 		Map<String, String> row = new HashMap<>();
-		this.database.fetch(
+		this.database.read(
 			"SELECT * FROM \"fetch\"",
 			resultSet ->
 			{
