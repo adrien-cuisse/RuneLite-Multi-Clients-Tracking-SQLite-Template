@@ -258,7 +258,7 @@ public final class GenericRepository implements AutoCloseable
 	 *
 	 * @return the created reader
 	 */
-	private SQLiteDatabase.ResultSetReader readResults(Collection<Map<String, String>> rows)
+	private ResultSetReader readResults(Collection<Map<String, String>> rows)
 	{
 		return resultSet ->
 		{

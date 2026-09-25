@@ -108,68 +108,6 @@ public final class SQLiteDatabase implements AutoCloseable
 	}
 
 	/**
-	 * Executes a SELECT statement without placeholders, fetching the whole table.
-	 * This function must <i style="color:#F80">NOT</i> be called in the same thread
-	 * as the Plugin class to comply with RuneLite restrictions.
-	 * If no connection is currently open, a new one is created.
-	 * If this is the first connection to the database and the file doesn't
-	 * exist, it is created as blank.
-	 *
-	 * @param query the query containing the SELECT statement to execute
-	 * @param reader the function to read from the ResultSet
-	 *
-	 * @throws UncheckedSQLException if a database access error occurs or if query was
-	 *  a write-operation, or if the provided reader misused the results
-	 *
-	 * @see ResultSet
-	 */
-	public void fetch(String query, ResultSetReader reader)
-	{
-		this.unchecked(() ->
-		{
-			try (Statement statement = this.connection().createStatement())
-			{
-				ResultSet rows = statement.executeQuery(query);
-				reader.supply(rows);
-				rows.close();
-			}
-		});
-	}
-
-	/**
-	 * Executes a SELECT statement with placeholders, fetching only matching rows.
-	 * This function must <i style="color:#F80">NOT</i> be called in the same thread
-	 * as the Plugin class to comply with RuneLite restrictions.
-	 * If no connection is currently open, a new one is created.
-	 * If this is the first connection to the database and the file doesn't
-	 * exist, it is created as blank.
-	 *
-	 * @param query the query containing the SELECT statement to execute
-	 * @param binder the function to bind parameters to the statement
-	 * @param reader the function to read from the ResultSet
-	 *
-	 * @throws UncheckedSQLException if a database access error occurs or if query was
-	 *  a write-operation, if the provided binder misuses the statement, or if
-	 *  the provided reader misused the results
-	 *
-	 * @see PreparedStatement
-	 * @see ResultSet
-	 */
-	public void fetch(String query, PreparedStatementBinder binder, ResultSetReader reader)
-	{
-		this.unchecked(() ->
-		{
-			try (PreparedStatement statement = this.connection().prepareStatement(query))
-			{
-				binder.bind(statement);
-				ResultSet rows = statement.executeQuery();
-				reader.supply(rows);
-				rows.close();
-			}
-		});
-	}
-
-	/**
 	 * Executes an UPDATE statement.
 	 * This function must <i style="color:#F80">NOT</i> be called in the same thread
 	 * as the Plugin class to comply with RuneLite restrictions.
@@ -248,6 +186,68 @@ public final class SQLiteDatabase implements AutoCloseable
 	}
 
 	/**
+	 * Executes a SELECT statement without placeholders, fetching the whole table.
+	 * This function must <i style="color:#F80">NOT</i> be called in the same thread
+	 * as the Plugin class to comply with RuneLite restrictions.
+	 * If no connection is currently open, a new one is created.
+	 * If this is the first connection to the database and the file doesn't
+	 * exist, it is created as blank.
+	 *
+	 * @param query the query containing the SELECT statement to execute
+	 * @param reader the function to read from the ResultSet
+	 *
+	 * @throws UncheckedSQLException if a database access error occurs or if query was
+	 *  a write-operation, or if the provided reader misused the results
+	 *
+	 * @see ResultSet
+	 */
+	void fetch(String query, ResultSetReader reader)
+	{
+		this.unchecked(() ->
+		{
+			try (Statement statement = this.connection().createStatement())
+			{
+				ResultSet rows = statement.executeQuery(query);
+				reader.supply(rows);
+				rows.close();
+			}
+		});
+	}
+
+	/**
+	 * Executes a SELECT statement with placeholders, fetching only matching rows.
+	 * This function must <i style="color:#F80">NOT</i> be called in the same thread
+	 * as the Plugin class to comply with RuneLite restrictions.
+	 * If no connection is currently open, a new one is created.
+	 * If this is the first connection to the database and the file doesn't
+	 * exist, it is created as blank.
+	 *
+	 * @param query the query containing the SELECT statement to execute
+	 * @param binder the function to bind parameters to the statement
+	 * @param reader the function to read from the ResultSet
+	 *
+	 * @throws UncheckedSQLException if a database access error occurs or if query was
+	 *  a write-operation, if the provided binder misuses the statement, or if
+	 *  the provided reader misused the results
+	 *
+	 * @see PreparedStatement
+	 * @see ResultSet
+	 */
+	void fetch(String query, PreparedStatementBinder binder, ResultSetReader reader)
+	{
+		this.unchecked(() ->
+		{
+			try (PreparedStatement statement = this.connection().prepareStatement(query))
+			{
+				binder.bind(statement);
+				ResultSet rows = statement.executeQuery();
+				reader.supply(rows);
+				rows.close();
+			}
+		});
+	}
+
+	/**
 	 * Returns the connection to the database, if none, a new one is created.
 	 *
 	 * @return the connection to the database
@@ -319,24 +319,6 @@ public final class SQLiteDatabase implements AutoCloseable
 		 * @see PreparedStatement
 		 */
 		void bind(PreparedStatement statement) throws SQLException;
-	}
-
-	/**
-	 * A callback to read queried rows.
-	 */
-	@FunctionalInterface
-	public interface ResultSetReader
-	{
-		/**
-		 * Reads from a ResultSet
-		 *
-		 * @param resultSet - the ResultSet to read from
-		 *
-		 * @throws SQLException is the ResultSet is misused
-		 *
-		 * @see ResultSet
-		 */
-		void supply(ResultSet resultSet) throws SQLException;
 	}
 
 	/**
