@@ -62,14 +62,18 @@ public final class SQLiteDatabase implements AutoCloseable
 	 *
 	 * @param queryString the raw query-string to execute
 	 *
-	 * @throws SQLException if the connection could not be opened
+	 * @throws UncheckedSQLException if the connection could not be opened,
+	 * 	if database access error occurred or if query was invalid
 	 */
-	public void execute(String queryString) throws SQLException
+	public void execute(String queryString)
 	{
-		try (Statement statement = this.connection().createStatement())
+		this.unchecked(() ->
 		{
-			statement.execute(queryString);
-		}
+			try (Statement statement = this.connection().createStatement())
+			{
+				statement.execute(queryString);
+			}
+		});
 	}
 
 	/**
@@ -86,18 +90,21 @@ public final class SQLiteDatabase implements AutoCloseable
 	 *  which should contain placeholders
 	 * @param binder the function to bind actual values to the placeholders
 	 *
-	 * @throws SQLException if a database access error occurs or if query was
-	 *  a read-operation, or if the provided binder misused the statement
+	 * @throws UncheckedSQLException if a database access error occurs, if query was
+	 *  a read-operation or was invalid, if the provided binder misused the statement
 	 *
 	 * @see PreparedStatement
 	 */
-	public void insert(String query, PreparedStatementBinder binder) throws SQLException
+	public void insert(String query, PreparedStatementBinder binder)
 	{
-		try (PreparedStatement statement = this.connection().prepareStatement(query))
+		this.unchecked(() ->
 		{
-			binder.bind(statement);
-			statement.executeUpdate();
-		}
+			try (PreparedStatement statement = this.connection().prepareStatement(query))
+			{
+				binder.bind(statement);
+				statement.executeUpdate();
+			}
+		});
 	}
 
 	/**
@@ -111,19 +118,22 @@ public final class SQLiteDatabase implements AutoCloseable
 	 * @param query the query containing the SELECT statement to execute
 	 * @param reader the function to read from the ResultSet
 	 *
-	 * @throws SQLException if a database access error occurs or if query was
+	 * @throws UncheckedSQLException if a database access error occurs or if query was
 	 *  a write-operation, or if the provided reader misused the results
 	 *
 	 * @see ResultSet
 	 */
-	public void fetch(String query, ResultSetReader reader) throws SQLException
+	public void fetch(String query, ResultSetReader reader)
 	{
-		try (Statement statement = this.connection().createStatement())
+		this.unchecked(() ->
 		{
-			ResultSet rows = statement.executeQuery(query);
-			reader.supply(rows);
-			rows.close();
-		}
+			try (Statement statement = this.connection().createStatement())
+			{
+				ResultSet rows = statement.executeQuery(query);
+				reader.supply(rows);
+				rows.close();
+			}
+		});
 	}
 
 	/**
@@ -138,22 +148,25 @@ public final class SQLiteDatabase implements AutoCloseable
 	 * @param binder the function to bind parameters to the statement
 	 * @param reader the function to read from the ResultSet
 	 *
-	 * @throws SQLException if a database access error occurs or if query was
+	 * @throws UncheckedSQLException if a database access error occurs or if query was
 	 *  a write-operation, if the provided binder misuses the statement, or if
 	 *  the provided reader misused the results
 	 *
 	 * @see PreparedStatement
 	 * @see ResultSet
 	 */
-	public void fetch(String query, PreparedStatementBinder binder, ResultSetReader reader) throws SQLException
+	public void fetch(String query, PreparedStatementBinder binder, ResultSetReader reader)
 	{
-		try (PreparedStatement statement = this.connection().prepareStatement(query))
+		this.unchecked(() ->
 		{
-			binder.bind(statement);
-			ResultSet rows = statement.executeQuery();
-			reader.supply(rows);
-			rows.close();
-		}
+			try (PreparedStatement statement = this.connection().prepareStatement(query))
+			{
+				binder.bind(statement);
+				ResultSet rows = statement.executeQuery();
+				reader.supply(rows);
+				rows.close();
+			}
+		});
 	}
 
 	/**
@@ -170,18 +183,21 @@ public final class SQLiteDatabase implements AutoCloseable
 	 *  which must contain placeholders
 	 * @param binder the function to bind actual values to the placeholders
 	 *
-	 * @throws SQLException if a database access error occurs or if query was
-	 *  a read-operation, or if the provided binder misused the statement
+	 * @throws UncheckedSQLException if a database access error occurs, if query was
+	 *  a read-operation or was invalid, or if the provided binder misused the statement
 	 *
 	 * @see PreparedStatement
 	 */
-	public void update(String query, PreparedStatementBinder binder) throws SQLException
+	public void update(String query, PreparedStatementBinder binder)
 	{
-		try (PreparedStatement statement = this.connection().prepareStatement(query))
+		this.unchecked(() ->
 		{
-			binder.bind(statement);
-			statement.executeUpdate();
-		}
+			try (PreparedStatement statement = this.connection().prepareStatement(query))
+			{
+				binder.bind(statement);
+				statement.executeUpdate();
+			}
+		});
 	}
 
 	/**
@@ -198,28 +214,31 @@ public final class SQLiteDatabase implements AutoCloseable
 	 *  which may contain placeholders
 	 * @param binder the function to bind actual values to the placeholders
 	 *
-	 * @throws SQLException if a database access error occurs or if query was
-	 *  a read-operation, or if the provided binder misused the statement
+	 * @throws UncheckedSQLException if a database access error occurs, if query was
+	 *  a read-operation or was invalid, or if the provided binder misused the statement
 	 *
 	 * @see PreparedStatement
 	 */
-	public void delete(String query, PreparedStatementBinder binder) throws SQLException
+	public void delete(String query, PreparedStatementBinder binder)
 	{
-		try (PreparedStatement statement = this.connection().prepareStatement(query))
+		this.unchecked(() ->
 		{
-			binder.bind(statement);
-			statement.executeUpdate();
-		}
+			try (PreparedStatement statement = this.connection().prepareStatement(query))
+			{
+				binder.bind(statement);
+				statement.executeUpdate();
+			}
+		});
 	}
 
 	/**
 	 * Closes the underlying connection.
 	 * If connection is already closed, this is a no-op.
 	 *
-	 * @throws Exception if a database access error occurs
+	 * @throws SQLException if a database access error occurs
 	 */
 	@Override
-	public void close() throws Exception
+	public void close() throws SQLException
 	{
 		if (!this.isOpen())
 			return;
@@ -267,6 +286,23 @@ public final class SQLiteDatabase implements AutoCloseable
 	}
 
 	/**
+	 * Wraps checked SQLException to unchecked UncheckedSQLException
+	 *
+	 * @param operation the callback to execute that may throw SQLException
+	 */
+	private void unchecked(DatabaseOperation operation)
+	{
+		try
+		{
+			operation.run();
+		}
+		catch (SQLException exception)
+		{
+			throw new UncheckedSQLException(exception);
+		}
+	}
+
+	/**
 	 * A callback to bind values to be inserted in the database.
 	 */
 	@FunctionalInterface
@@ -301,5 +337,18 @@ public final class SQLiteDatabase implements AutoCloseable
 		 * @see ResultSet
 		 */
 		void supply(ResultSet resultSet) throws SQLException;
+	}
+
+	/**
+	 * A callback that may throw SQLException, such as:
+	 * 	- binding parameters to a statement,
+	 * 	- reading a result set,
+	 * 	- executing a query,
+	 * 	- creating or closing a connection.
+	 */
+	@FunctionalInterface
+	private interface DatabaseOperation
+	{
+		void run() throws SQLException;
 	}
 }

@@ -58,9 +58,9 @@ public final class GenericRepository implements AutoCloseable
 	 * 	values are accepted if corresponding column in nullable, and nullable
 	 * 	columns may be omitted
 	 *
-	 * @throws SQLException if a database access error occurs
+	 * @throws UncheckedSQLException if a database access error occurs
 	 */
-	public void insert(Map<String, Object> map) throws SQLException
+	public void insert(Map<String, Object> map)
 	{
 		String query = createInsertionQuery(map);
 		List<Object> values = new ArrayList<>(map.values());
@@ -78,9 +78,9 @@ public final class GenericRepository implements AutoCloseable
 	 * @return - a map for every row, values may be null if corresponding column
 	 * 	was nullable
 	 *
-	 * @throws SQLException if a database access error occurs
+	 * @throws UncheckedSQLException if a database access error occurs
 	 */
-	public List<Map<String, String>> fetch(WhereCondition ...where) throws SQLException
+	public List<Map<String, String>> fetch(WhereCondition ...where)
 	{
 		String query = createFetchQuery(where);
 
@@ -104,9 +104,9 @@ public final class GenericRepository implements AutoCloseable
 	 * @param where only rows matching these conditions will be updated.
 	 *	If no conditions are provided, every row will be updated.
 	 *
-	 * @throws SQLException if a database access error occurs
+	 * @throws UncheckedSQLException if a database access error occurs
 	 */
-	public void update(Map<String, Object> columns, WhereCondition ...where) throws SQLException
+	public void update(Map<String, Object> columns, WhereCondition ...where)
 	{
 		if (columns.isEmpty())
 			return;
@@ -129,9 +129,9 @@ public final class GenericRepository implements AutoCloseable
 	 * @param where only rows matching these conditions will be deleted.
 	 *	If no conditions are provided, every row will be deleted.
 	 *
-	 * @throws SQLException if a database access error occurs
+	 * @throws UncheckedSQLException if a database access error occurs
 	 */
-	public void delete(WhereCondition ...where) throws SQLException
+	public void delete(WhereCondition ...where)
 	{
 		String query = createDeleteQuery(where);
 
