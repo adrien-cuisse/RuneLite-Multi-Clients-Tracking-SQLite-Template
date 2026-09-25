@@ -200,7 +200,7 @@ public final class GenericRepository implements AutoCloseable
 	 *
 	 * @return the created binder
 	 */
-	private SQLiteDatabase.PreparedStatementBinder bindParameters(List<Object> values)
+	private PreparedStatementBinder bindParameters(List<Object> values)
 	{
 		return statement ->
 		{
@@ -219,7 +219,7 @@ public final class GenericRepository implements AutoCloseable
 	 *
 	 * @return the created binder
 	 */
-	private SQLiteDatabase.PreparedStatementBinder bindParameters(WhereCondition ...where)
+	private PreparedStatementBinder bindParameters(WhereCondition ...where)
 	{
 		return statement ->
 		{
