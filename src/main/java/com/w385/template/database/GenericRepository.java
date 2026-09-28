@@ -16,11 +16,11 @@ import static java.util.stream.Collectors.joining;
 import static java.util.stream.Collectors.toList;
 
 /**
- * Handles a single SQL table and related queries.
+ * Handles a single SQL table and related queries from generic types.
  * Identifiers are escaped so any symbol can be used (e.g., dashes, spaces, etc.)
  * Only boxed types and Instant are currently supported for mapping.
  */
-public final class GenericRepository implements AutoCloseable
+public abstract class GenericRepository implements AutoCloseable
 {
 	/**
 	 * The database the repository is connected to
@@ -42,10 +42,37 @@ public final class GenericRepository implements AutoCloseable
 
 	private static final String LIST_END_SYMBOL = ") ";
 
-	public GenericRepository(SQLiteDatabase database, String table)
+	protected GenericRepository(SQLiteDatabase database)
 	{
 		this.database = database;
-		this.table = this.quote(table);
+		this.table = this.quote(this.table());
+	}
+
+	/**
+	 * Deletes rows from the table.
+	 * This function must <i style="color:#F80">NOT</i> be called in the same thread
+	 * as the Plugin class to comply with RuneLite restrictions.
+	 *
+	 * @param where only rows matching these conditions will be deleted.
+	 *	If no conditions are provided, every row will be deleted.
+	 *
+	 * @throws UncheckedSQLException if a database access error occurs
+	 */
+	public final void delete(WhereCondition ...where)
+	{
+		String query = createDeleteQuery(where);
+
+		List<Object> values = stream(where)
+			.map(condition -> condition.value)
+			.collect(toList());
+
+		this.database.write(query, this.bindParameters(values));
+	}
+
+	@Override
+	public void close() throws Exception
+	{
+		this.database.close();
 	}
 
 	/**
@@ -60,7 +87,7 @@ public final class GenericRepository implements AutoCloseable
 	 *
 	 * @throws UncheckedSQLException if a database access error occurs
 	 */
-	public void insert(Map<String, Object> map)
+	protected final void insert(Map<String, Object> map)
 	{
 		String query = createInsertionQuery(map);
 		List<Object> values = new ArrayList<>(map.values());
@@ -80,7 +107,7 @@ public final class GenericRepository implements AutoCloseable
 	 *
 	 * @throws UncheckedSQLException if a database access error occurs
 	 */
-	public List<Map<String, String>> fetch(WhereCondition ...where)
+	protected final List<Map<String, String>> fetch(WhereCondition ...where)
 	{
 		String query = createFetchQuery(where);
 
@@ -106,7 +133,7 @@ public final class GenericRepository implements AutoCloseable
 	 *
 	 * @throws UncheckedSQLException if a database access error occurs
 	 */
-	public void update(Map<String, Object> columns, WhereCondition ...where)
+	protected final void update(Map<String, Object> columns, WhereCondition ...where)
 	{
 		if (columns.isEmpty())
 			return;
@@ -122,31 +149,9 @@ public final class GenericRepository implements AutoCloseable
 	}
 
 	/**
-	 * Deletes rows from the table.
-	 * This function must <i style="color:#F80">NOT</i> be called in the same thread
-	 * as the Plugin class to comply with RuneLite restrictions.
-	 *
-	 * @param where only rows matching these conditions will be deleted.
-	 *	If no conditions are provided, every row will be deleted.
-	 *
-	 * @throws UncheckedSQLException if a database access error occurs
+	 * @return - the name of the bound SQL table
 	 */
-	public void delete(WhereCondition ...where)
-	{
-		String query = createDeleteQuery(where);
-
-		List<Object> values = stream(where)
-			.map(condition -> condition.value)
-			.collect(toList());
-
-		this.database.write(query, this.bindParameters(values));
-	}
-
-	@Override
-	public void close() throws Exception
-	{
-		this.database.close();
-	}
+	protected abstract String table();
 
 	/**
 	 * Binds a parameter to the statement.

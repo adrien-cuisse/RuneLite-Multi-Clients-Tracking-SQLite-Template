@@ -15,9 +15,16 @@ import static org.hamcrest.core.Is.is;
 
 public final class GenericRepositoryTests extends DatabaseTestSuite
 {
-	private final GenericRepository repository = new GenericRepository(this.database, TABLE_NAME);
-
 	private static final String TABLE_NAME = "beers";
+
+	private final GenericRepository repository = new GenericRepository(this.database)
+	{
+		@Override
+		protected String table()
+		{
+			return TABLE_NAME;
+		}
+	};
 
 	@Before
 	public void buildDatabase() throws SQLException

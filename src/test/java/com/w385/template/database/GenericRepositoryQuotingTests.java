@@ -8,9 +8,16 @@ import java.util.Map;
 
 public final class GenericRepositoryQuotingTests extends DatabaseTestSuite
 {
-	private final GenericRepository repository = new GenericRepository(this.database, TABLE_NAME);
-
 	private static final String TABLE_NAME = "quoting-tests";
+
+	private final GenericRepository repository = new GenericRepository(this.database)
+	{
+		@Override
+		protected String table()
+		{
+			return TABLE_NAME;
+		}
+	};
 
 	/**
 	 * Creates a table with a TEXT column whose name needs to be quoted inside
