@@ -66,7 +66,7 @@ public abstract class GenericRepository implements AutoCloseable
 			.map(condition -> condition.value)
 			.collect(toList());
 
-		this.database.write(query, this.bindParameters(values));
+		this.database.executeWithoutResults(query, this.bindParameters(values));
 	}
 
 	@Override
@@ -95,7 +95,7 @@ public abstract class GenericRepository implements AutoCloseable
 		String query = createInsertionQuery(map);
 		List<Object> values = new ArrayList<>(map.values());
 		var ids = new ArrayList<String>();
-		this.database.read(query, this.bindParameters(values), this.readPrimaryKeys(ids));
+		this.database.executeWithResults(query, this.bindParameters(values), this.readPrimaryKeys(ids));
 		return ids.get(0);
 	}
 
@@ -119,9 +119,9 @@ public abstract class GenericRepository implements AutoCloseable
 		List<Map<String, String>> results = new ArrayList<>();
 
 		if (where.length == 0)
-			this.database.read(query, this.readResults(results));
+			this.database.executeWithResults(query, this.readResults(results));
 		else
-			this.database.read(query, this.bindParameters(where), this.readResults(results));
+			this.database.executeWithResults(query, this.bindParameters(where), this.readResults(results));
 
 		return results;
 	}
@@ -150,7 +150,7 @@ public abstract class GenericRepository implements AutoCloseable
 			.map(condition -> condition.value)
 			.forEach(values::add);
 
-		this.database.write(query, this.bindParameters(values));
+		this.database.executeWithoutResults(query, this.bindParameters(values));
 	}
 
 	/**

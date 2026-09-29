@@ -49,9 +49,9 @@ public final class SQLiteDatabase implements AutoCloseable
 	 * as the Plugin class to comply with RuneLite restrictions.
 	 * To execute a query from inputs (e.g., some file content), use the following:
 	 *  <ul>
-	 *	  <li>{@link SQLiteDatabase#write(String query, PreparedStatementBinder binder) write}</li>
-	 *	  <li>{@link SQLiteDatabase#read(String query, ResultSetReader reader) read}</li>
-	 *	  <li>{@link SQLiteDatabase#read(String query, PreparedStatementBinder binder, ResultSetReader reader) read}</li>
+	 *	  <li>{@link #executeWithoutResults(String query, PreparedStatementBinder binder) executeWithoutResults}</li>
+	 *	  <li>{@link #executeWithResults(String query, ResultSetReader reader) executeWithResults}</li>
+	 *	  <li>{@link #executeWithResults(String query, PreparedStatementBinder binder, ResultSetReader reader) executeWithResults}</li>
 	 *  </ul>
 	 * If no connection is currently open, a new one is created.
 	 * If this is the first connection to the database and the file doesn't
@@ -114,7 +114,7 @@ public final class SQLiteDatabase implements AutoCloseable
 	 *
 	 * @see PreparedStatement
 	 */
-	void write(String query, PreparedStatementBinder binder)
+	void executeWithoutResults(String query, PreparedStatementBinder binder)
 	{
 		this.unchecked(() ->
 		{
@@ -143,7 +143,7 @@ public final class SQLiteDatabase implements AutoCloseable
 	 *
 	 * @see ResultSet
 	 */
-	void read(String query, ResultSetReader reader)
+	void executeWithResults(String query, ResultSetReader reader)
 	{
 		this.unchecked(() ->
 		{
@@ -175,7 +175,7 @@ public final class SQLiteDatabase implements AutoCloseable
 	 * @see PreparedStatement
 	 * @see ResultSet
 	 */
-	void read(String query, PreparedStatementBinder binder, ResultSetReader reader)
+	void executeWithResults(String query, PreparedStatementBinder binder, ResultSetReader reader)
 	{
 		this.unchecked(() ->
 		{
