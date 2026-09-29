@@ -1,6 +1,8 @@
 package com.w385.template.database;
 
 import com.w385.template.domain.Entity;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import static com.w385.template.database.SqlOperator.EQUALS;
@@ -27,7 +29,8 @@ public abstract class Repository<T extends Entity<U>, U> extends GenericReposito
 	 */
 	public final void insert(T entity)
 	{
-		String id = super.insertMap(this.map(entity));
+		Map<String, Object> map = this.withoutPrimaryKey(this.map(entity));
+		String id = super.insertMap(map);
 		entity.setIdentity(this.parseIdentity(id));
 	}
 
@@ -63,7 +66,8 @@ public abstract class Repository<T extends Entity<U>, U> extends GenericReposito
 			throw new IllegalArgumentException("entity hasn't been persisted");
 
 		var where = new WhereCondition(this.primaryKey(), EQUALS, identity);
-		super.updateMap(this.map(entity), where);
+		Map<String, Object> map = this.withoutPrimaryKey(this.map(entity));
+		super.updateMap(map, where);
 	}
 
 	/**
@@ -91,6 +95,7 @@ public abstract class Repository<T extends Entity<U>, U> extends GenericReposito
 	 * 	- non-nullable columns must be set,
 	 * 	- nullable columns may be set to null,
 	 * 	- columns with default values may be omitted.
+	 * Primary key will be ignored, and shouldn't be set uselessly.
 	 *
 	 * @param entity the entity turn into a Map
 	 *
@@ -120,4 +125,21 @@ public abstract class Repository<T extends Entity<U>, U> extends GenericReposito
 	 * @return the parsed identity
 	 */
 	protected abstract U parseIdentity(String identity);
+
+	/**
+	 * Removes the primary key from a Map representation
+	 *
+	 * @param map the map to remove primary key from
+	 *
+	 * @return the provided map without primary key
+	 */
+	private Map<String, Object> withoutPrimaryKey(Map<String, Object> map)
+	{
+		if (!map.containsKey(primaryKey()))
+			return map;
+
+		var modifiable = new HashMap<>(map);
+		modifiable.remove(this.primaryKey());
+		return Collections.unmodifiableMap(modifiable);
+	}
 }
