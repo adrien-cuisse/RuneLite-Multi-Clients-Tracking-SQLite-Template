@@ -2,7 +2,9 @@ package com.w385.template.database;
 
 import com.w385.demo.movements.Movement;
 import com.w385.demo.movements.MovementRepository;
+import org.junit.Before;
 import org.junit.Test;
+import java.io.IOException;
 import java.time.Instant;
 import java.util.List;
 import static com.w385.template.database.SqlOperator.EQUALS;
@@ -15,6 +17,15 @@ public class RepositoryTests extends DatabaseTestSuite
 	private final MovementRepository repository = new MovementRepository(this.database);
 
 	private static final Instant NOW = Instant.now();
+
+	@Before
+	public void createTable() throws IOException
+	{
+		String tableCreationQuery = new SqlResourceReader()
+			.read("/demo/sql/create-database.sql")
+			.get(0);
+		this.database.execute(tableCreationQuery);
+	}
 
 	@Test
 	public void idIsSetAfterInsertion()

@@ -87,7 +87,7 @@ public abstract class GenericRepository implements AutoCloseable
 	 *
 	 * @throws UncheckedSQLException if a database access error occurs
 	 */
-	protected final String insert(Map<String, Object> map)
+	protected final String insertMap(Map<String, Object> map)
 	{
 		String query = createInsertionQuery(map);
 		List<Object> values = new ArrayList<>(map.values());
@@ -109,7 +109,7 @@ public abstract class GenericRepository implements AutoCloseable
 	 *
 	 * @throws UncheckedSQLException if a database access error occurs
 	 */
-	protected final List<Map<String, String>> fetch(WhereCondition ...where)
+	protected final List<Map<String, String>> fetchMap(WhereCondition ...where)
 	{
 		String query = createFetchQuery(where);
 
@@ -135,7 +135,7 @@ public abstract class GenericRepository implements AutoCloseable
 	 *
 	 * @throws UncheckedSQLException if a database access error occurs
 	 */
-	protected final void update(Map<String, Object> columns, WhereCondition ...where)
+	protected final void updateMap(Map<String, Object> columns, WhereCondition ...where)
 	{
 		if (columns.isEmpty())
 			return;

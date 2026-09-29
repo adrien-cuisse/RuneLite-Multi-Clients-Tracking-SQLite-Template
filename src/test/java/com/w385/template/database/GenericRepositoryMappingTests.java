@@ -34,7 +34,7 @@ public final class GenericRepositoryMappingTests extends DatabaseTestSuite
 
 		// when:
 		Map<String, Object> map = Map.of("content", 42);
-		this.repository.insert(map);
+		this.repository.insertMap(map);
 
 		// then:
 		Connection rawConnection = rawConnection();
@@ -57,7 +57,7 @@ public final class GenericRepositoryMappingTests extends DatabaseTestSuite
 
 		// when:
 		Map<String, Object> map = Map.of("content", 42L);
-		this.repository.insert(map);
+		this.repository.insertMap(map);
 
 		// then:
 		Connection rawConnection = rawConnection();
@@ -80,7 +80,7 @@ public final class GenericRepositoryMappingTests extends DatabaseTestSuite
 
 		// when:
 		Map<String, Object> map = Map.of("content", (short) 42);
-		this.repository.insert(map);
+		this.repository.insertMap(map);
 
 		// then:
 		Connection rawConnection = rawConnection();
@@ -103,7 +103,7 @@ public final class GenericRepositoryMappingTests extends DatabaseTestSuite
 
 		// when:
 		Map<String, Object> map = Map.of("content", (byte) 42);
-		this.repository.insert(map);
+		this.repository.insertMap(map);
 
 		// then:
 		Connection rawConnection = rawConnection();
@@ -126,7 +126,7 @@ public final class GenericRepositoryMappingTests extends DatabaseTestSuite
 
 		// when:
 		Map<String, Object> map = Map.of("content", true);
-		this.repository.insert(map);
+		this.repository.insertMap(map);
 
 		// then:
 		Connection rawConnection = rawConnection();
@@ -149,7 +149,7 @@ public final class GenericRepositoryMappingTests extends DatabaseTestSuite
 
 		// when:
 		Map<String, Object> map = Map.of("content", 'é');
-		this.repository.insert(map);
+		this.repository.insertMap(map);
 
 		// then:
 		Connection rawConnection = rawConnection();
@@ -172,7 +172,7 @@ public final class GenericRepositoryMappingTests extends DatabaseTestSuite
 
 		// when:
 		Map<String, Object> map = Map.of("content", 42.0f);
-		this.repository.insert(map);
+		this.repository.insertMap(map);
 
 		// then:
 		Connection rawConnection = rawConnection();
@@ -195,7 +195,7 @@ public final class GenericRepositoryMappingTests extends DatabaseTestSuite
 
 		// when:
 		Map<String, Object> map = Map.of("content", "string");
-		this.repository.insert(map);
+		this.repository.insertMap(map);
 
 		// then:
 		Connection rawConnection = rawConnection();
@@ -218,7 +218,7 @@ public final class GenericRepositoryMappingTests extends DatabaseTestSuite
 
 		// when:
 		Map<String, Object> map = Map.of("content", 42.0d);
-		this.repository.insert(map);
+		this.repository.insertMap(map);
 
 		// then:
 		Connection rawConnection = rawConnection();
@@ -241,7 +241,7 @@ public final class GenericRepositoryMappingTests extends DatabaseTestSuite
 
 		// when:
 		Map<String, Object> map = new HashMap<>() {{ put("content", null); }};
-		this.repository.insert(map);
+		this.repository.insertMap(map);
 
 		// then:
 		Connection rawConnection = rawConnection();
@@ -267,7 +267,7 @@ public final class GenericRepositoryMappingTests extends DatabaseTestSuite
 		insertStatement.executeUpdate("INSERT INTO \"" + TABLE_NAME + "\" (\"content\") VALUES (null)");
 
 		// when:
-		List<Map<String, String>> rows = this.repository.fetch();
+		List<Map<String, String>> rows = this.repository.fetchMap();
 
 		// then:
 		assertThat(rows.size(), is(1));
@@ -288,7 +288,7 @@ public final class GenericRepositoryMappingTests extends DatabaseTestSuite
 		// when:
 		Instant now = Instant.now();
 		map.put("content", now);
-		this.repository.insert(map);
+		this.repository.insertMap(map);
 
 		// then:
 		Connection rawConnection = rawConnection();

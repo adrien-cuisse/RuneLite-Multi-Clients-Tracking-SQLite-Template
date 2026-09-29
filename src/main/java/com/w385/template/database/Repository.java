@@ -1,7 +1,6 @@
 package com.w385.template.database;
 
 import com.w385.template.domain.Entity;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import static com.w385.template.database.SqlOperator.EQUALS;
@@ -16,24 +15,13 @@ public abstract class Repository<T extends Entity<U>, U> extends GenericReposito
 
 	public final void insert(T entity)
 	{
-		String id = super.insert(this.map(entity));
+		String id = super.insertMap(this.map(entity));
 		entity.setIdentity(this.parseIdentity(id));
 	}
 
-	public final List<T> fetch()
+	public final List<T> fetch(WhereCondition ...conditions)
 	{
-		return super.fetch()
-			.stream()
-			.map(this::unmap)
-			.collect(toList());
-	}
-
-	public final List<T> fetch(WhereCondition condition, WhereCondition ...conditions)
-	{
-		WhereCondition[] copy = Arrays.copyOf(conditions, conditions.length + 1);
-		copy[copy.length - 1] = condition;
-
-		return super.fetch(copy)
+		return super.fetchMap(conditions)
 			.stream()
 			.map(this::unmap)
 			.collect(toList());
@@ -46,7 +34,7 @@ public abstract class Repository<T extends Entity<U>, U> extends GenericReposito
 			throw new IllegalArgumentException("entity hasn't been persisted");
 
 		var where = new WhereCondition(this.primaryKey(), EQUALS, identity);
-		super.update(this.map(entity), where);
+		super.updateMap(this.map(entity), where);
 	}
 
 	public final void delete(T entity)

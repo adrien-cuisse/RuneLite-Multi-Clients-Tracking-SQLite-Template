@@ -56,7 +56,7 @@ public final class GenericRepositoryTests extends DatabaseTestSuite
 		beer.put("volume", 500);
 
 		// when: persisting it
-		this.repository.insert(beer);
+		this.repository.insertMap(beer);
 
 		// then: it should be in the database afterward
 		Connection rawConnection = rawConnection();
@@ -79,7 +79,7 @@ public final class GenericRepositoryTests extends DatabaseTestSuite
 		// given: no filters
 		WhereCondition[] where = {};
 		// when: fetching the table
-		Collection<Map<String, String>> beers = this.repository.fetch(where);
+		Collection<Map<String, String>> beers = this.repository.fetchMap(where);
 		// then: it should return every row
 		assertThat(beers.size(), is(3));
 	}
@@ -95,7 +95,7 @@ public final class GenericRepositoryTests extends DatabaseTestSuite
 		};
 
 		// when: fetching the table
-		ArrayList<Map<String, String>> beers = new ArrayList<>(this.repository.fetch(where));
+		ArrayList<Map<String, String>> beers = new ArrayList<>(this.repository.fetchMap(where));
 
 		// then: it only returns matching rows
 		assertThat(beers.size(), is(1));
@@ -108,7 +108,7 @@ public final class GenericRepositoryTests extends DatabaseTestSuite
 		// given: nothing to update
 		var updates = new HashMap<String, Object>();
 		// when: trying to launch the query
-		this.repository.update(updates);
+		this.repository.updateMap(updates);
 
 		// then: it should be a no-op
 		Connection rawConnection = rawConnection();
@@ -143,7 +143,7 @@ public final class GenericRepositoryTests extends DatabaseTestSuite
 		updates.put("volume", 330);
 
 		// when: updating
-		this.repository.update(updates);
+		this.repository.updateMap(updates);
 
 		// then: the whole table should have been updated
 		Connection rawConnection = rawConnection();
@@ -182,7 +182,7 @@ public final class GenericRepositoryTests extends DatabaseTestSuite
 		};
 
 		// when: updating
-		this.repository.update(columns, where);
+		this.repository.updateMap(columns, where);
 
 		// then: ...
 		Connection rawConnection = rawConnection();

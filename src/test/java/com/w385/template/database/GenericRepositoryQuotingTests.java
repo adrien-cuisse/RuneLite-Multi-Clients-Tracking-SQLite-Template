@@ -43,7 +43,7 @@ public final class GenericRepositoryQuotingTests extends DatabaseTestSuite
 		entry.put("TABLE", "identifiers should be quoted");
 
 		// when: using it in a query
-		this.repository.insert(entry);
+		this.repository.insertMap(entry);
 
 		// then: it should have been quoted, and no exception should be thrown
 	}
@@ -55,7 +55,7 @@ public final class GenericRepositoryQuotingTests extends DatabaseTestSuite
 		var where = new WhereCondition("TABLE", SqlOperator.EQUALS, "foo");
 
 		// when: using it in a query
-		this.repository.fetch(where);
+		this.repository.fetchMap(where);
 
 		// then: it should have been quoted, and no exception should be thrown
 	}
@@ -67,7 +67,7 @@ public final class GenericRepositoryQuotingTests extends DatabaseTestSuite
 		Map<String, Object> updates = Map.of("TABLE", "bar");
 
 		// when: using it in a query
-		this.repository.update(updates);
+		this.repository.updateMap(updates);
 
 		// then: it should have been quoted, and no exception should be thrown
 	}
@@ -80,7 +80,7 @@ public final class GenericRepositoryQuotingTests extends DatabaseTestSuite
 
 		// when: using it in a query
 		Map<String, Object> updates = Map.of("TABLE", "bar");
-		this.repository.update(updates, where);
+		this.repository.updateMap(updates, where);
 
 		// then: it should have been quoted, and no exception should be thrown
 	}
