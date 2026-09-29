@@ -85,6 +85,9 @@ public abstract class GenericRepository implements AutoCloseable
 	 * 	values are accepted if corresponding column in nullable, and nullable
 	 * 	columns may be omitted
 	 *
+	 * @return the new identity of the inserted element, whose real type is
+	 * 	unknown
+	 *
 	 * @throws UncheckedSQLException if a database access error occurs
 	 */
 	protected final String insertMap(Map<String, Object> map)

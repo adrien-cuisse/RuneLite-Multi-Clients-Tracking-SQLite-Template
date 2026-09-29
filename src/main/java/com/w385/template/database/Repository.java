@@ -6,6 +6,12 @@ import java.util.Map;
 import static com.w385.template.database.SqlOperator.EQUALS;
 import static java.util.stream.Collectors.toList;
 
+/**
+ * Provides database operations for domain/business models.
+ *
+ * @param <T> the bound entity-class
+ * @param <U> the identity-type of the bound entity-class
+ */
 public abstract class Repository<T extends Entity<U>, U> extends GenericRepository
 {
 	protected Repository(SQLiteDatabase database)
@@ -13,12 +19,26 @@ public abstract class Repository<T extends Entity<U>, U> extends GenericReposito
 		super(database);
 	}
 
+	/**
+	 * Inserts a new entity in database and assigns its new identity
+	 * Any previously assigned identity is ignored.
+	 *
+	 * @param entity - the entity to insert in database
+	 */
 	public final void insert(T entity)
 	{
 		String id = super.insertMap(this.map(entity));
 		entity.setIdentity(this.parseIdentity(id));
 	}
 
+	/**
+	 * Fetches entities from filters.
+	 * If no filters are provided, the whole table is returned.
+	 *
+	 * @param conditions the filters to match against entities
+	 *
+	 * @return the matching entities
+	 */
 	public final List<T> fetch(WhereCondition ...conditions)
 	{
 		return super.fetchMap(conditions)
@@ -27,6 +47,15 @@ public abstract class Repository<T extends Entity<U>, U> extends GenericReposito
 			.collect(toList());
 	}
 
+	/**
+	 * Updates an entity in database.
+	 * The entity should have been modified after it has been fetched.
+	 * If the identity of the entity is not found in database, this is a no-op.
+	 *
+	 * @param entity the entity to update in database
+	 *
+	 * @throws IllegalArgumentException if the entity has no identity
+	 */
 	public final void update(T entity)
 	{
 		U identity = entity.getIdentity();
@@ -37,6 +66,14 @@ public abstract class Repository<T extends Entity<U>, U> extends GenericReposito
 		super.updateMap(this.map(entity), where);
 	}
 
+	/**
+	 * Deletes an entity in database.
+	 * If the identity of the entity is not found in database, this is a no-op.
+	 *
+	 * @param entity the entity to delete from the database
+	 *
+	 * @throws IllegalArgumentException if the entity has no identity
+	 */
 	public final void delete(T entity)
 	{
 		U identity = entity.getIdentity();
@@ -47,9 +84,40 @@ public abstract class Repository<T extends Entity<U>, U> extends GenericReposito
 		super.delete(where);
 	}
 
+	/**
+	 * Creates a Map representing the given entity, where keys are columns' name
+	 *  in the SQL table, and values the corresponding values in the entity.
+	 * Values must conform with the SQL schema:
+	 * 	- non-nullable columns must be set,
+	 * 	- nullable columns may be set to null,
+	 * 	- columns with default values may be omitted.
+	 *
+	 * @param entity the entity turn into a Map
+	 *
+	 * @return a generic representation of the entity
+	 */
 	protected abstract Map<String, Object> map(T entity);
 
+	/**
+	 * Creates a new entity from its generic Map representation
+	 * The Map is guaranteed to conform with the bound SQL schema:
+	 * - non-nullable columns have a key, and value is non-null,
+	 * - nullable columns have a key, and value may be null.
+	 *
+	 * @param map - the map representing the entity, where keys are columns' name
+	 * 	in the SQL table, and values the corresponding values in the entity stored
+	 *	in Strings.
+	 *
+	 * @return the created entity
+	 */
 	protected abstract T unmap(Map<String, String> map);
 
+	/**
+	 * Parses an identity stored in a String.
+	 *
+	 * @param identity the identity to parse
+	 *
+	 * @return the parsed identity
+	 */
 	protected abstract U parseIdentity(String identity);
 }
