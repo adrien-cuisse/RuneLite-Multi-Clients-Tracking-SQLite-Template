@@ -2,8 +2,11 @@
 -- The table to store player moves
 CREATE TABLE IF NOT EXISTS "movements" (
 
-    -- The timestamp where it was emitted
-    "timestamp" INTEGER NOT NULL,
+	-- The primary key
+	"id" INTEGER PRIMARY KEY AUTOINCREMENT,
+
+	-- The timestamp where it was emitted
+	"timestamp" INTEGER NOT NULL,
 
 	-- The account that made the move, to differentiate clients
 	"emitter" TEXT NOT NULL,

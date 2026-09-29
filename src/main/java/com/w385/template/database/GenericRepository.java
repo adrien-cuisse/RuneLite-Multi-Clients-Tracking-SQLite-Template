@@ -87,11 +87,13 @@ public abstract class GenericRepository implements AutoCloseable
 	 *
 	 * @throws UncheckedSQLException if a database access error occurs
 	 */
-	protected final void insert(Map<String, Object> map)
+	protected final String insert(Map<String, Object> map)
 	{
 		String query = createInsertionQuery(map);
 		List<Object> values = new ArrayList<>(map.values());
-		this.database.write(query, this.bindParameters(values));
+		var ids = new ArrayList<String>();
+		this.database.read(query, this.bindParameters(values), this.readPrimaryKeys(ids));
+		return ids.get(0);
 	}
 
 	/**
@@ -149,9 +151,17 @@ public abstract class GenericRepository implements AutoCloseable
 	}
 
 	/**
-	 * @return - the name of the bound SQL table
+	 * @return the name of the bound SQL table
 	 */
 	protected abstract String table();
+
+	/**
+	 * @return the name of the primary-key column
+	 */
+	protected String primaryKey()
+	{
+		return "id";
+	}
 
 	/**
 	 * Binds a parameter to the statement.
@@ -274,6 +284,24 @@ public abstract class GenericRepository implements AutoCloseable
 	}
 
 	/**
+	 * Creates a reader that will fill the provided collection, in row-order.
+	 * The reader will throw if a database access error occurs or if statement is
+	 * already closed.
+	 *
+	 * @param primaryKeys the collection to fill
+	 *
+	 * @return the created reader
+	 */
+	private ResultSetReader readPrimaryKeys(List<String> primaryKeys)
+	{
+		return resultSet ->
+		{
+			while (resultSet.next())
+				primaryKeys.add(resultSet.getString(this.primaryKey()));
+		};
+	}
+
+	/**
 	 * Creates an INSERT query with placeholders to be filled from a binder.
 	 *
 	 * @param map - the columns to add in the query
@@ -293,7 +321,9 @@ public abstract class GenericRepository implements AutoCloseable
 		return "INSERT INTO " + this.table
 			+ columns
 			+ "VALUES"
-			+ placeholders;
+			+ placeholders
+			+ "RETURNING "
+			+ this.quote(this.primaryKey());
 	}
 
 	/**

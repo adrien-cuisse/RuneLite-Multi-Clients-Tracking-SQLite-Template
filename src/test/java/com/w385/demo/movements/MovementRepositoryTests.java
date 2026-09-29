@@ -6,6 +6,8 @@ import org.junit.Before;
 import org.junit.Test;
 import java.io.IOException;
 import java.time.Instant;
+import java.util.List;
+import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
 
@@ -97,5 +99,47 @@ public final class MovementRepositoryTests extends DatabaseTestSuite
 
 		// then: the floor should be as set
 		assertThat(persisted.floor(), is(floor));
+	}
+
+	@Test
+	public void idIsSetAfterInsertion()
+	{
+		// given: a movement that has not been persisted yet
+		var movement = new Movement("any", NOW, 0, 0, 0);
+
+		// when: inserting it into the database
+		this.repository.insert(movement);
+
+		// then: its ID should now be assigned
+		assertThat(movement.getId(), is(1));
+	}
+
+	@Test
+	public void idIsFetched()
+	{
+		// given: a movement stored in database
+		var movement = new Movement("any", NOW, 0, 0, 0);
+		this.repository.insert(movement);
+
+		// when: reading it from the database
+		var persisted = this.repository.fetch().get(0);
+
+		// then: its ID should now be assigned
+		assertThat(persisted.getId(), is(1));
+	}
+
+	@Test
+	public void idIsIgnoredForInsertion()
+	{
+		// given: a movement stored in database
+		var movement = new Movement("any", NOW, 0, 0, 0);
+		this.repository.insert(movement);
+
+		// when: persisting it again
+		this.repository.insert(movement);
+
+		// then: newly persisted movement should have its own ID
+		List<Movement> moves = this.repository.fetch();
+		assertThat(moves.get(0).getId(), is(not(moves.get(1).getId())));
 	}
 }

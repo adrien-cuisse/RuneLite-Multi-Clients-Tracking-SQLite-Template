@@ -17,7 +17,8 @@ public final class MovementRepository extends GenericRepository
 
 	public void insert(Movement movement)
 	{
-		this.insert(this.map(movement));
+		String id = super.insert(this.map(movement));
+		movement.setId(Integer.parseInt(id));
 	}
 
 	public List<Movement> fetch()
@@ -46,11 +47,14 @@ public final class MovementRepository extends GenericRepository
 
 	private Movement unmap(Map<String, String> map)
 	{
+		String id = map.get(this.primaryKey());
+
 		long timestamp = Long.parseLong(map.get("timestamp"));
 		long epochMillis = timestamp / 1_000_000;
 		long epochNanos = timestamp % 1_000_000;
 
 		return new Movement(
+			id == null ? null : Integer.parseInt(id),
 			map.get("emitter"),
 			Instant.ofEpochMilli(epochMillis).plusNanos(epochNanos),
 			Integer.parseInt(map.get("abscissa")),
