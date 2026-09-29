@@ -12,7 +12,7 @@ import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
 
-public class RepositoryTests extends DatabaseTestSuite
+public final class RepositoryTests extends DatabaseTestSuite
 {
 	private final MovementRepository repository = new MovementRepository(this.database);
 

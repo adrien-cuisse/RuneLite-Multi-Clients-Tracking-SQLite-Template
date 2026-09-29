@@ -4,7 +4,7 @@ import com.w385.template.domain.Entity;
 
 import java.time.Instant;
 
-public class Movement extends Entity<Integer>
+public final class Movement extends Entity<Integer>
 {
 	private final String emitter;
 
