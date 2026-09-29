@@ -1,11 +1,11 @@
 package com.w385.demo.movements;
 
+import com.w385.template.domain.Entity;
+
 import java.time.Instant;
 
-public class Movement
+public class Movement extends Entity<Integer>
 {
-	private Integer id;
-
 	private final String emitter;
 
 	private final Instant timestamp;
@@ -23,22 +23,12 @@ public class Movement
 
 	public Movement(Integer id, String emitter, Instant timestamp, int abscissa, int ordinate, int floor)
 	{
-		this.id = id;
+		this.identity = id;
 		this.emitter = emitter;
 		this.timestamp = timestamp;
 		this.abscissa = abscissa;
 		this.ordinate = ordinate;
 		this.floor = floor;
-	}
-
-	public Integer getId()
-	{
-		return this.id;
-	}
-
-	public void setId(int id)
-	{
-		this.id = id;
 	}
 
 	public String emitter()
