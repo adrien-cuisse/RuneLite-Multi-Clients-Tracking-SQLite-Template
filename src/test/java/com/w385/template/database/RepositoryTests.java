@@ -22,7 +22,7 @@ public final class RepositoryTests extends DatabaseTestSuite
 	}
 
 	@Test
-	public void idIsSetAfterInsertion()
+	public void identityIsSetAfterInsertion()
 	{
 		// given: an entity that has not been persisted yet
 		var entity = new Foo("");
@@ -35,7 +35,7 @@ public final class RepositoryTests extends DatabaseTestSuite
 	}
 
 	@Test(expected = IllegalArgumentException.class)
-	public void insertingAlreadyStoredIdThrows()
+	public void insertingAlreadyStoredIdentityThrows()
 	{
 		// given: an identity already used in the table
 		var entity = new Foo("identity owner");
@@ -62,7 +62,7 @@ public final class RepositoryTests extends DatabaseTestSuite
 	}
 
 	@Test
-	public void idIsFetched()
+	public void identityIsFetched()
 	{
 		// given: an entity stored in database
 		var entity = new Foo("stored in database");
@@ -106,7 +106,7 @@ public final class RepositoryTests extends DatabaseTestSuite
 	}
 
 	@Test
-	public void updatesFromId()
+	public void updatesFromIdentity()
 	{
 		// given: an entity stored in database
 		var entity = new Foo("as before");
@@ -122,7 +122,7 @@ public final class RepositoryTests extends DatabaseTestSuite
 	}
 
 	@Test
-	public void untargetedIdsAreNotUpdated()
+	public void untargetedEntitiesAreNotUpdated()
 	{
 		// given: some entities stored in database
 		var target = new Foo("as before");
@@ -140,7 +140,7 @@ public final class RepositoryTests extends DatabaseTestSuite
 	}
 
 	@Test(expected = IllegalArgumentException.class)
-	public void updatingNonPersistedMovementThrows()
+	public void updatingNonPersistedEntityThrows()
 	{
 		// given: an entity that has not been persisted yet
 		var entity = new Foo("in memory");
@@ -152,7 +152,7 @@ public final class RepositoryTests extends DatabaseTestSuite
 	}
 
 	@Test
-	public void deletesFromId()
+	public void deletesFromIdentity()
 	{
 		// given: an entity stored in database
 		var target = new Foo("deletion target");
@@ -167,7 +167,7 @@ public final class RepositoryTests extends DatabaseTestSuite
 	}
 
 	@Test
-	public void untargetedIdsAreNotDeleted()
+	public void untargetedEntitiesAreNotDeleted()
 	{
 		// given: 2 entities stored in database
 		var target = new Foo("deletion target");
