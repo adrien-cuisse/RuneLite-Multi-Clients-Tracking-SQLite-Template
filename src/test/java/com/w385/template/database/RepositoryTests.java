@@ -6,7 +6,6 @@ import org.junit.Test;
 import java.util.List;
 import java.util.Map;
 import static com.w385.template.database.SqlOperator.EQUALS;
-import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
 
@@ -35,6 +34,33 @@ public final class RepositoryTests extends DatabaseTestSuite
 		assertThat(entity.getIdentity(), is(1));
 	}
 
+	@Test(expected = IllegalArgumentException.class)
+	public void insertingAlreadyStoredIdThrows()
+	{
+		// given: an identity already used in the table
+		var entity = new Foo("identity owner");
+		this.repository.insert(entity);
+
+		// when: trying to insert again the same identity
+		var duplicate = new Foo(entity.getIdentity(), "duplicate");
+		this.repository.insert(duplicate);
+
+		// then: it should throw to warn about the mistake
+	}
+
+	@Test(expected = IllegalArgumentException.class)
+	public void insertingAlreadyStoredEntityThrows()
+	{
+		// given: an entity already stored in the table
+		var entity = new Foo("already stored");
+		this.repository.insert(entity);
+
+		// when: trying to insert again the same entity
+		this.repository.insert(entity);
+
+		// then: it should throw to warn about the mistake
+	}
+
 	@Test
 	public void idIsFetched()
 	{
@@ -47,21 +73,6 @@ public final class RepositoryTests extends DatabaseTestSuite
 
 		// then: its ID should now be assigned
 		assertThat(persisted.getIdentity(), is(1));
-	}
-
-	@Test
-	public void idIsIgnoredForInsertion()
-	{
-		// given: an entity stored in database
-		var entity = new Foo("to persist again");
-		this.repository.insert(entity);
-
-		// when: persisting it again
-		this.repository.insert(entity);
-
-		// then: newly persisted entity should have its own ID
-		List<Foo> foos = this.repository.fetch();
-		assertThat(foos.get(0).getIdentity(), is(not(foos.get(1).getIdentity())));
 	}
 
 	@Test
@@ -175,7 +186,7 @@ public final class RepositoryTests extends DatabaseTestSuite
 	}
 
 	@Test(expected = IllegalArgumentException.class)
-	public void deletingNonPersistedMovementThrows()
+	public void deletingNonPersistedEntityThrows()
 	{
 		// given: an entity that has not been persisted yet
 		var entity = new Foo("in memory");

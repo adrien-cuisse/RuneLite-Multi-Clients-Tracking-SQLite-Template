@@ -8,12 +8,14 @@ package com.w385.template.domain;
 public abstract class Entity<T>
 {
 	/**
-	 * The identity, may be null, usually an Integer or String
+	 * The identity, may be null, usually an Integer or String.
+	 * This MUST NOT be used in equals() and hashCode(), otherwise
+	 * the entity could be unreachable in hash-based collections and maps.
 	 */
 	protected T identity;
 
 	/**
-	 * @return the identity
+	 * @return the identity, null if entity has never been persisted.
 	 */
 	public T getIdentity()
 	{
@@ -21,7 +23,8 @@ public abstract class Entity<T>
 	}
 
 	/**
-	 * Assigns a new identity to the entity
+	 * Assigns a new identity to the entity.
+	 * This SHOULD NOT be called manually, unless you know what you're doing.
 	 *
 	 * @param id - the new identity to assign
 	 */

@@ -26,11 +26,18 @@ public abstract class Repository<T extends Entity<U>, U> extends GenericReposito
 	 * Any previously assigned identity is ignored.
 	 *
 	 * @param entity - the entity to insert in database
+	 *
+	 * @throws IllegalArgumentException if the entity already has an identity
+	 * @throws UncheckedSQLException if a constraint violation occurs, as
+	 *	listed by {@link #map}
 	 */
 	public final void insert(T entity)
 	{
-		Map<String, Object> map = this.withoutPrimaryKey(this.map(entity));
-		String id = super.insertMap(map);
+		U identity = entity.getIdentity();
+		if (identity != null)
+			throw new IllegalArgumentException("entity has already been persisted");
+
+		String id = super.insertMap(this.map(entity));
 		entity.setIdentity(this.parseIdentity(id));
 	}
 
@@ -58,6 +65,8 @@ public abstract class Repository<T extends Entity<U>, U> extends GenericReposito
 	 * @param entity the entity to update in database
 	 *
 	 * @throws IllegalArgumentException if the entity has no identity
+	 * @throws UncheckedSQLException if a constraint violation occurs, as
+	 *	listed by {@link #map}
 	 */
 	public final void update(T entity)
 	{
@@ -92,10 +101,10 @@ public abstract class Repository<T extends Entity<U>, U> extends GenericReposito
 	 * Creates a Map representing the given entity, where keys are columns' name
 	 *  in the SQL table, and values the corresponding values in the entity.
 	 * Values must conform with the SQL schema:
-	 * 	- non-nullable columns must be set,
-	 * 	- nullable columns may be set to null,
-	 * 	- columns with default values may be omitted.
-	 * Primary key will be ignored, and shouldn't be set uselessly.
+	 * 	- non-NULLABLE columns must be set,
+	 * 	- NULLABLE columns may be omitted or set to null,
+	 * 	- columns with DEFAULT values may be omitted,
+	 * 	- AUTOINCREMENT integer primary keys should not be set.
 	 *
 	 * @param entity the entity turn into a Map
 	 *
@@ -106,8 +115,8 @@ public abstract class Repository<T extends Entity<U>, U> extends GenericReposito
 	/**
 	 * Creates a new entity from its generic Map representation
 	 * The Map is guaranteed to conform with the bound SQL schema:
-	 * - non-nullable columns have a key, and value is non-null,
-	 * - nullable columns have a key, and value may be null.
+	 * - non-NULLABLE columns have a key, and value is non-null,
+	 * - NULLABLE columns have a key, and value may be null.
 	 *
 	 * @param map - the map representing the entity, where keys are columns' name
 	 * 	in the SQL table, and values the corresponding values in the entity stored
