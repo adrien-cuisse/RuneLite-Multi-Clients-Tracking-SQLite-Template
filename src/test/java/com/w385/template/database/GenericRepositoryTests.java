@@ -27,7 +27,7 @@ public final class GenericRepositoryTests extends DatabaseTestSuite
 	};
 
 	@Before
-	public void buildDatabase() throws SQLException
+	public void buildDatabase()
 	{
 		String tableCreationQuery = "CREATE TABLE \"" + TABLE_NAME + "\" (\n"
 			+ "    \"id\" INTEGER PRIMARY KEY AUTOINCREMENT,\n"
@@ -74,7 +74,7 @@ public final class GenericRepositoryTests extends DatabaseTestSuite
 	}
 
 	@Test
-	public void fetchesWholeTable() throws SQLException
+	public void fetchesWholeTable()
 	{
 		// given: no filters
 		WhereCondition[] where = {};
@@ -85,7 +85,7 @@ public final class GenericRepositoryTests extends DatabaseTestSuite
 	}
 
 	@Test
-	public void fetchesMatchingRows() throws SQLException
+	public void fetchesMatchingRows()
 	{
 		// given: filters to apply
 		WhereCondition[] where =
