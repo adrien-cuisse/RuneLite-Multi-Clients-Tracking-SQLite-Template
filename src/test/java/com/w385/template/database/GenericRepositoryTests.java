@@ -38,11 +38,11 @@ public final class GenericRepositoryTests extends DatabaseTestSuite
 		this.database.execute(tableCreationQuery);
 
 		String insertionQuery = "INSERT INTO \"" + TABLE_NAME + "\"\n"
-			+ "    (\"brand\", \"abv\", \"volume\")\n"
+			+ "    (\"id\", \"brand\", \"abv\", \"volume\")\n"
 			+ "    VALUES\n"
-			+ "    ('La Chouffe', 8.0, 500),"
-			+ "    ('Duvel', 8.5, 750),"
-			+ "    ('Tripel LEFORT', 8.8, 750)";
+			+ "    (1, 'La Chouffe', 8.0, 500),"
+			+ "    (2, 'Duvel', 8.5, 750),"
+			+ "    (3, 'Tripel LEFORT', 8.8, 750)";
 		this.database.execute(insertionQuery);
 	}
 
