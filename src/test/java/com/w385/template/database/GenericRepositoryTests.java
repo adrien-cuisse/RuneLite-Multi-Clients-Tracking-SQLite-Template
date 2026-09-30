@@ -74,6 +74,22 @@ public final class GenericRepositoryTests extends DatabaseTestSuite
 	}
 
 	@Test
+	public void returnsGeneratedPrimaryKey()
+	{
+		// given: an object to insert in a table with an AUTOINCREMENT primary key
+		var beer = new HashMap<String, Object>();
+		beer.put("brand", "3 Monts");
+		beer.put("abv", 8.5D);
+		beer.put("volume", 500);
+
+		// when: inserting it
+		String generatedPrimaryKey = this.repository.insertMap(beer);
+
+		// then: it should have returned the newly inserted primary key
+		assertThat(generatedPrimaryKey, is("4"));
+	}
+
+	@Test
 	public void fetchesWholeTable()
 	{
 		// given: no filters
